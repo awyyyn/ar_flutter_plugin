@@ -5,11 +5,11 @@ buildscript {
     ext.kotlin_version = '1.7.10'
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.0'
+        classpath 'com.android.tools.build:gradle:7.4.2'  // updated AGP version
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -17,7 +17,7 @@ buildscript {
 rootProject.allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
@@ -25,14 +25,23 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-   namespace 'com.github.cariuslars.arflutterplugin'  
-   compileSdkVersion 30
+    namespace 'com.github.cariuslars.arflutterplugin'  
+    compileSdkVersion 33 // update to latest SDK for best compatibility
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
     defaultConfig {
         minSdkVersion 24
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 }
 
@@ -68,6 +77,21 @@ afterEvaluate {
                 compileOnly "android.arch.lifecycle:runtime:$lifecycle_version"
                 compileOnly "android.arch.lifecycle:common:$lifecycle_version"
                 compileOnly "android.arch.lifecycle:common-java8:$lifecycle_version"
+            }
+        }
+    }
+}
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion "1.7.10"
+                details.because("Force Kotlin version to avoid conflict")
             }
         }
     }
